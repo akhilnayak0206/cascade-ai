@@ -1,0 +1,60 @@
+# Environment
+.env
+.env.*
+.venv/
+venv/
+
+# Workspace
+workspace/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C Extensions
+*.so
+
+# Distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Type Checking
+.mypy_cache/
+.pyre/
+.pytype/
+
+# Linting
+.ruff_cache/
+
+# IDE
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Celery
+celerybeat-schedule
+
+# SQLite
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Cache
+.cache/
+
+# Docker
+docker-compose.override.yml
