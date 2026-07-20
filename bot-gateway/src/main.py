@@ -1,14 +1,17 @@
 """Bot-gateway entry point — Telegram long-polling with owner-only auth."""
 
 import asyncio
+import os
+from pathlib import Path
 import sys
 
 from aiogram import Bot, Dispatcher
+from watchfiles import watch
 
-from .config import config
-from .logger import setup_logging, get_logger
-from .process_manager import ProcessManager
-from .handlers import router
+from src.config import config
+from src.logger import setup_logging, get_logger
+from src.process_manager import ProcessManager
+from src.handlers import router
 
 
 class BotApplication:
@@ -62,8 +65,32 @@ class BotApplication:
             sys.exit(1)
 
 
+def run_with_reload() -> None:
+    """Run the bot with auto-reload on file changes."""
+
+    logger = setup_logging(config.LOG_LEVEL)
+    src_path = Path(__file__).parent
+
+    logger.info("Starting bot with auto-reload enabled...")
+    logger.info(f"Watching directory: {src_path}")
+
+    for changes in watch(src_path, recursive=True):
+        logger.info(
+            f"Detected changes: {len(changes)} file(s) modified, restarting..."
+        )
+
+        # Restart the current process
+        os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
 def main() -> None:
     """Application entry point."""
+
+    # Check if auto-reload is enabled via environment variable
+    if os.environ.get("AUTO_RELOAD", "false").lower() == "true":
+        run_with_reload()
+        return
+
     app = BotApplication()
     app.start()
 

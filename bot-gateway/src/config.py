@@ -28,7 +28,7 @@ class Config:
         """Validate required configuration values."""
         if not cls.TELEGRAM_BOT_TOKEN:
             raise ValueError("TELEGRAM_BOT_TOKEN environment variable is required")
-        if cls.OWNER_TELEGRAM_ID == 0:
+        if cls.OWNER_TELEGRAM_ID == "0":
             raise ValueError("OWNER_TELEGRAM_ID environment variable is required and must be non-zero")
 
 

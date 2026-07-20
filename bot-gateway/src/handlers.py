@@ -6,9 +6,9 @@ import logging
 import httpx
 from aiogram import Router, types
 
-from .auth import OwnerFilter
-from .config import config
-from .logger import get_logger
+from src.auth import OwnerFilter
+from src.config import config
+from src.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -20,7 +20,8 @@ AGENT_CORE_URL = config.AGENT_CORE_URL
 async def handle_owner_message(message: types.Message) -> None:
     """Forward the owner's message to agent-core and relay the response back."""
 
-    message.answer(f"⚠️ Could not reach agent-core: {message.from_user.id}")
+    await message.answer("I only handle text messages for now.")
+
     if not message.text:
         await message.answer("I only handle text messages for now.")
         return
