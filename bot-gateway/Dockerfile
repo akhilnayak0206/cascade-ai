@@ -2,11 +2,12 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY pyproject.toml .
 
 RUN pip install --no-cache-dir uv && \
-    uv pip install --system --no-cache -r requirements.txt
+    uv venv && \
+    uv pip install .
 
 COPY src/ ./src/
 
-CMD ["python", "-m", "src.main"]
+CMD ["uv","run","python", "-m", "src.main"]
