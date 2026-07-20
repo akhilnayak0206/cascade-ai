@@ -1,9 +1,11 @@
 """Process management module for single instance enforcement and cleanup."""
 
+import atexit
 import os
 import sys
 import signal
 import logging
+import time
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -14,7 +16,7 @@ class ProcessManager:
 
     def __init__(self, pid_file: str):
         self.pid_file = pid_file
-        self._setup_signal_handlers()
+        atexit.register(self.cleanup)
 
     def _setup_signal_handlers(self) -> None:
         """Setup signal handlers for graceful shutdown."""
@@ -34,19 +36,37 @@ class ProcessManager:
                 with open(self.pid_file, "r") as f:
                     pid = int(f.read().strip())
 
-                # Check if process is still running
+                # Check if process is still running - kill it so we can replace it
+                # (e.g. watchfiles reload)
                 os.kill(pid, 0)
-                logger.error(f"Instance already running with PID {pid}. Exiting.")
-                sys.exit(1)
+
+                logger.info(f"Killing previous instance (PID {pid}) for reload...")
+                os.kill(pid, signal.SIGTERM)
+
+                # Give it a moment to terminate
+                for _ in range(20):
+                    time.sleep(0.1)
+                    try:
+                        os.kill(pid, 0)
+                    except (ProcessLookupError, OSError):
+                        break
+                else:
+                    # Force kill if still alive
+                    logger.warning(
+                        f"Force-killing previous instance (PID {pid})"
+                    )
+                    os.kill(pid, signal.SIGKILL)
+
+                self.cleanup()
 
             except (ProcessLookupError, ValueError, OSError):
-                # Process not running or invalid PID, clean up stale file
+                # Process not running, or invalid PID, clean up stale file
                 logger.info("Removing stale PID file")
                 self.cleanup()
 
         # Write current PID
         self._write_pid()
-
+        
     def _write_pid(self) -> None:
         """Write current process ID to PID file."""
         with open(self.pid_file, "w") as f:

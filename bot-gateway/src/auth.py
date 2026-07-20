@@ -5,8 +5,8 @@ import logging
 from aiogram import types
 from aiogram.filters import BaseFilter
 
-from src.config import config
-from src.logger import get_logger
+from .config import config
+from .logger import get_logger
 
 logger = get_logger(__name__)
 

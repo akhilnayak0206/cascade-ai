@@ -1,0 +1,1 @@
+uv run watchfiles "uv run python -m src.main" src/ --ignore-paths "*.pid"
